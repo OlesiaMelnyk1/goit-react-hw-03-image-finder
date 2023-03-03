@@ -11,7 +11,7 @@ export class App extends Component {
     text: '',
     page: 1,
     images: [],
-    largeImageData: {},
+    largeImage: '',
     isLoading: false,
     isModalOpen: false,
     error: false,
@@ -59,37 +59,21 @@ export class App extends Component {
     }));
   };
 
-  handleModal = event => {
-    const { code } = event;
-    const {
-      nodeName,
-      dataset: { source },
-      alt,
-    } = event.target;
-    const { isModalOpen } = this.state;
-    if (nodeName === 'IMG') {
-      if (isModalOpen === true) {
-        return;
-      }
-      this.setState({
-        isModalOpen: true,
-        largeImageData: {
-          source,
-          alt,
-        },
-      });
-    }
-    if (nodeName === 'DIV' || code === 'Escape') {
-      this.setState({
-        isModalOpen: false,
-      });
-    }
+  onItemClick = largeImage => {
+    this.setState({
+      isModalOpen: true,
+      largeImage,
+    });
+  };
+
+  handleModal = () => {
+    this.setState({ isModalOpen: false });
   };
 
   render() {
     const {
       images,
-      largeImageData,
+      largeImage,
       isLoading,
       isModalOpen,
       error,
@@ -101,7 +85,7 @@ export class App extends Component {
         {error === true
           ? alert('Sorry, an error occurred! Please try again later')
           : images.length > 0 && (
-              <ImageGallery pictures={images} handleModal={this.handleModal} />
+              <ImageGallery pictures={images} onItemClick={this.onItemClick} />
             )}
         {isLoading === true ? (
           <Loader />
@@ -115,7 +99,7 @@ export class App extends Component {
           )
         )}
         {isModalOpen && (
-          <Modal data={largeImageData} handleModal={this.handleModal} />
+          <Modal largeImage={largeImage} handleModal={this.handleModal} />
         )}
       </>
     );

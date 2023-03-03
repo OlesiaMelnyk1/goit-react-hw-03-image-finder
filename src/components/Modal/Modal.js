@@ -4,23 +4,28 @@ import css from './Modal.module.css';
 
 export class Modal extends Component {
   componentDidMount() {
-    const { handleModal } = this.props;
-    window.addEventListener('keydown', handleModal);
+    window.addEventListener('keydown', this.handleKeydown);
   }
   componentWillUnmount() {
-    const { handleModal } = this.props;
-    window.removeEventListener('keydown', handleModal);
+    window.removeEventListener('keydown', this.handleKeydown);
   }
 
+  handleKeydown = event => {
+    if (event.code === 'Escape') {
+      this.props.handleModal();
+    }
+  };
+  handleOverlay = event => {
+    if (event.target === event.currentTarget) {
+      this.props.handleModal();
+    }
+  };
+
   render() {
-    const {
-      data: { source, alt },
-      handleModal,
-    } = this.props;
     return (
-      <div className={css.Overlay} onClick={handleModal}>
+      <div className={css.Overlay} onClick={this.handleOverlay}>
         <div className={css.Modal}>
-          <img src={source} alt={alt} />
+          <img src={this.props.largeImage} alt={this.props.alt} />
         </div>
       </div>
     );
@@ -28,9 +33,5 @@ export class Modal extends Component {
 }
 
 Modal.propTypes = {
-  data: PropTypes.shape({
-    source: PropTypes.string.isRequired,
-    alt: PropTypes.string.isRequired,
-  }).isRequired,
   handleModal: PropTypes.func.isRequired,
 };
