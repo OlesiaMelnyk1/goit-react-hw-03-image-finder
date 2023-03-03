@@ -15,6 +15,7 @@ export class App extends Component {
     isLoading: false,
     isModalOpen: false,
     error: false,
+    showLoadMoreButton: false,
   };
 
   async componentDidUpdate(_, prevState) {
@@ -22,9 +23,10 @@ export class App extends Component {
     if (prevState.text !== text || prevState.page !== page) {
       this.setState({ isLoading: true });
       try {
-        const { hits } = await fetchImages(text, page);
+        const { hits, totalHits } = await fetchImages(text, page);
         this.setState(prevState => ({
           images: [...prevState.images, ...hits],
+          showLoadMoreButton: page < Math.ceil(totalHits / 12),
         }));
         if (hits.length === 0) {
           return alert('Nothing found for your request. Please, try again');
@@ -45,6 +47,9 @@ export class App extends Component {
       text,
       page: 1,
       images: [],
+      error: false,
+      isLoading: false,
+      showLoadMoreButton: false,
     });
   };
 
@@ -82,24 +87,30 @@ export class App extends Component {
   };
 
   render() {
-    const { images, largeImageData, isLoading, isModalOpen, error } =
-      this.state;
+    const {
+      images,
+      largeImageData,
+      isLoading,
+      isModalOpen,
+      error,
+      showLoadMoreButton,
+    } = this.state;
     return (
       <>
         <Searchbar onSubmit={this.searchImages} />
         {error === true
-          ? alert('Sorry, there are no images for your request')
+          ? alert('Sorry, an error occurred! Please try again later')
           : images.length > 0 && (
               <ImageGallery pictures={images} handleModal={this.handleModal} />
             )}
         {isLoading === true ? (
           <Loader />
         ) : (
-          images.length > 11 && (
+          showLoadMoreButton && (
             <Button
               type="button"
               text="Load more"
-              loadMorePictures={this.loadMorePictures}
+              onLoadMorePics={this.loadMorePictures}
             />
           )
         )}
